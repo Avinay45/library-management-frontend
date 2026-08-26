@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDashboardStats } from "../services/api";
+import { getApiErrorMessage, getDashboardStats } from "../services/api";
 
 function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -22,7 +22,7 @@ function Dashboard() {
       } catch (err) {
         console.error("Dashboard loading error:", err);
 
-        setError("Unable to load dashboard data.");
+        setError(getApiErrorMessage(err, "Unable to load dashboard data."));
       } finally {
         setLoading(false);
       }

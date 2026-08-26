@@ -1,8 +1,35 @@
 import axios from "axios";
 
+const apiBaseUrl =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000/api";
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: apiBaseUrl,
+  timeout: 15000,
 });
+
+export const getApiErrorMessage = (error, fallback = "Unable to complete request.") => {
+  if (error.response) {
+    const status = error.response.status;
+    const message = error.response.data?.message || fallback;
+
+    if (status === 404) {
+      return "API endpoint was not found. Check the backend deployment URL.";
+    }
+
+    if (status >= 500) {
+      return message;
+    }
+
+    return message;
+  }
+
+  if (error.request) {
+    return "Backend is unavailable or blocked by CORS. Check the API URL and allowed frontend origin.";
+  }
+
+  return error.message || fallback;
+};
 
 // =========================
 // Dashboard
