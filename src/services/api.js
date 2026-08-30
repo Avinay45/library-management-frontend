@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const productionApiUrl = "https://library-management-backend-kohd-jgpt3pyct.vercel.app/api";
+const productionApiUrl = "https://library-management-backend-awrx-o9711azl6.vercel.app/api";
 
 const getDefaultApiUrl = () => {
   if (
