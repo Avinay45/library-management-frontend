@@ -1,7 +1,20 @@
 import axios from "axios";
 
+const productionApiUrl = "https://library-management-backend-kohd-jgpt3pyct.vercel.app/api";
+
+const getDefaultApiUrl = () => {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname.endsWith(".vercel.app")
+  ) {
+    return productionApiUrl;
+  }
+
+  return "http://localhost:5000/api";
+};
+
 const apiBaseUrl =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || getDefaultApiUrl();
 
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -25,7 +38,7 @@ export const getApiErrorMessage = (error, fallback = "Unable to complete request
   }
 
   if (error.request) {
-    return "Backend is unavailable or blocked by CORS. Check the API URL and allowed frontend origin.";
+    return `Backend is unavailable or blocked by CORS. API URL: ${apiBaseUrl}`;
   }
 
   return error.message || fallback;
