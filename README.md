@@ -1,16 +1,22 @@
-# React + Vite
+# Library Management Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React and Vite frontend for the Library Management System.
 
-Currently, two official plugins are available:
+## Local Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+Create `.env` from `.env.example` and set `VITE_API_URL` to the backend API URL.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Vercel Deployment
 
-## Expanding the ESLint configuration
+Set the Vercel project root to this `client` folder.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Add this environment variable:
+
+- `VITE_API_URL`: deployed backend URL ending in `/api`, for example `https://your-backend.vercel.app/api`
+
+The included `vercel.json` rewrites client-side routes to `index.html`, so refreshes on `/dashboard`, `/books`, `/members`, and `/transactions` work in production.
