@@ -1,62 +1,64 @@
 import axios from "axios";
 
-const productionApiUrl = "https://library-management-backend-awrx-o9711azl6.vercel.app/api";
-
-const getDefaultApiUrl = () => {
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname.endsWith(".vercel.app")
-  ) {
-    return productionApiUrl;
-  }
-
-  return "http://localhost:5000/api";
-};
-
-const apiBaseUrl =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || getDefaultApiUrl();
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+).replace(/\/+$/, "");
 
 const api = axios.create({
-  baseURL: apiBaseUrl,
+  baseURL: API_BASE_URL,
   timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-export const getApiErrorMessage = (error, fallback = "Unable to complete request.") => {
-  if (error.response) {
-    const status = error.response.status;
-    const message = error.response.data?.message || fallback;
+export const getApiErrorMessage = (
+  error,
+  fallback = "Something went wrong",
+) => {
+  if (error?.response) {
+    const { status, data } = error.response;
 
-    if (status === 404) {
-      return "API endpoint was not found. Check the backend deployment URL.";
+    if (typeof data?.message === "string" && data.message.trim()) {
+      return data.message;
     }
 
-    if (status >= 500) {
-      return message;
+    switch (status) {
+      case 400:
+        return "Invalid request.";
+      case 401:
+        return "You are not authorized.";
+      case 403:
+        return "You do not have permission to perform this action.";
+      case 404:
+        return "Requested resource was not found.";
+      case 409:
+        return "This operation conflicts with existing data.";
+      case 500:
+        return "The server encountered an error.";
+      default:
+        return `Request failed with status ${status}.`;
     }
-
-    return message;
   }
 
-  if (error.request) {
-    return `Backend is unavailable or blocked by CORS. API URL: ${apiBaseUrl}`;
+  if (error?.request) {
+    return "Unable to reach the backend server. Please check your connection and try again.";
   }
 
-  return error.message || fallback;
+  if (error?.message) {
+    return error.message;
+  }
+
+  return fallback;
 };
 
-// =========================
 // Dashboard
-// =========================
-
 export const getDashboardStats = async () => {
   const response = await api.get("/dashboard");
   return response.data;
 };
 
-// =========================
 // Books
-// =========================
-
 export const getBooks = async () => {
   const response = await api.get("/books");
   return response.data;
@@ -77,10 +79,7 @@ export const deleteBook = async (id) => {
   return response.data;
 };
 
-// =========================
 // Members
-// =========================
-
 export const getMembers = async () => {
   const response = await api.get("/members");
   return response.data;
@@ -100,10 +99,8 @@ export const deleteMember = async (id) => {
   const response = await api.delete(`/members/${id}`);
   return response.data;
 };
-// =========================
-// Transactions
-// =========================
 
+// Transactions
 export const getTransactions = async () => {
   const response = await api.get("/transactions");
   return response.data;
@@ -111,13 +108,17 @@ export const getTransactions = async () => {
 
 export const createTransaction = async (transactionData) => {
   const response = await api.post("/transactions/issue", transactionData);
-
   return response.data;
 };
 
 export const returnTransaction = async (id) => {
   const response = await api.put(`/transactions/${id}/return`);
-
   return response.data;
 };
+
+export const getOverdueTransactions = async () => {
+  const response = await api.get("/transactions/overdue");
+  return response.data;
+};
+
 export default api;
