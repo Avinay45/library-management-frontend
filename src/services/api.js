@@ -1,8 +1,20 @@
 import axios from "axios";
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-).replace(/\/+$/, "");
+const normalizeApiUrl = (value) => {
+  return value?.trim().replace(/\/+$/, "");
+};
+
+const configuredApiUrl = normalizeApiUrl(import.meta.env.VITE_API_URL);
+
+const API_BASE_URL =
+  configuredApiUrl ||
+  (import.meta.env.DEV
+    ? "http://localhost:5000/api"
+    : "https://library-management-backend-r45i.vercel.app/api");
+
+if (!API_BASE_URL) {
+  throw new Error("API configuration is missing. Set VITE_API_URL.");
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -26,23 +38,32 @@ export const getApiErrorMessage = (
     switch (status) {
       case 400:
         return "Invalid request.";
+
       case 401:
         return "You are not authorized.";
+
       case 403:
         return "You do not have permission to perform this action.";
+
       case 404:
         return "Requested resource was not found.";
+
       case 409:
         return "This operation conflicts with existing data.";
+
       case 500:
         return "The server encountered an error.";
+
+      case 503:
+        return "The backend database is currently unavailable.";
+
       default:
         return `Request failed with status ${status}.`;
     }
   }
 
   if (error?.request) {
-    return "Unable to reach the backend server. Please check your connection and try again.";
+    return "Unable to reach the backend server. Please check the backend deployment and API URL.";
   }
 
   if (error?.message) {
@@ -52,13 +73,19 @@ export const getApiErrorMessage = (
   return fallback;
 };
 
-// Dashboard
+/* -------------------------------------------------------------------------- */
+/* Dashboard                                                                  */
+/* -------------------------------------------------------------------------- */
+
 export const getDashboardStats = async () => {
   const response = await api.get("/dashboard");
   return response.data;
 };
 
-// Books
+/* -------------------------------------------------------------------------- */
+/* Books                                                                      */
+/* -------------------------------------------------------------------------- */
+
 export const getBooks = async () => {
   const response = await api.get("/books");
   return response.data;
@@ -79,7 +106,10 @@ export const deleteBook = async (id) => {
   return response.data;
 };
 
-// Members
+/* -------------------------------------------------------------------------- */
+/* Members                                                                    */
+/* -------------------------------------------------------------------------- */
+
 export const getMembers = async () => {
   const response = await api.get("/members");
   return response.data;
@@ -100,7 +130,10 @@ export const deleteMember = async (id) => {
   return response.data;
 };
 
-// Transactions
+/* -------------------------------------------------------------------------- */
+/* Transactions                                                               */
+/* -------------------------------------------------------------------------- */
+
 export const getTransactions = async () => {
   const response = await api.get("/transactions");
   return response.data;
@@ -108,11 +141,13 @@ export const getTransactions = async () => {
 
 export const createTransaction = async (transactionData) => {
   const response = await api.post("/transactions/issue", transactionData);
+
   return response.data;
 };
 
 export const returnTransaction = async (id) => {
   const response = await api.put(`/transactions/${id}/return`);
+
   return response.data;
 };
 
