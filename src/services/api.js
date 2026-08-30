@@ -4,16 +4,12 @@ const normalizeApiUrl = (value) => {
   return value?.trim().replace(/\/+$/, "");
 };
 
-const configuredApiUrl = normalizeApiUrl(import.meta.env.VITE_API_URL);
-
-const API_BASE_URL =
-  configuredApiUrl ||
-  (import.meta.env.DEV
-    ? "http://localhost:5000/api"
-    : "https://library-management-backend-r45i.vercel.app/api");
+const API_BASE_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 
 if (!API_BASE_URL) {
-  throw new Error("API configuration is missing. Set VITE_API_URL.");
+  throw new Error(
+    "VITE_API_URL is not configured. Set VITE_API_URL in the environment.",
+  );
 }
 
 const api = axios.create({
@@ -141,13 +137,11 @@ export const getTransactions = async () => {
 
 export const createTransaction = async (transactionData) => {
   const response = await api.post("/transactions/issue", transactionData);
-
   return response.data;
 };
 
 export const returnTransaction = async (id) => {
   const response = await api.put(`/transactions/${id}/return`);
-
   return response.data;
 };
 
